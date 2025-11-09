@@ -1,0 +1,169 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+  role      Role     @default(CLIENT)
+  password  String   // hashed with bcrypt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  portfolio Portfolio?
+  documents Document[]
+  messages  Message[]
+  meetings  Meeting[]
+}
+
+enum Role {
+  CLIENT
+  AGENT
+  ADMIN
+}
+
+model Portfolio {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  policies    Policy[]
+  totalValue  Float    @default(0)
+  lastUpdated DateTime @updatedAt
+}
+
+model Policy {
+  id           String       @id @default(cuid())
+  portfolioId  String
+  portfolio    Portfolio    @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  type         PolicyType
+  provider     String
+  policyNumber String
+  coverage     Float
+  premium      Float
+  startDate    DateTime
+  endDate      DateTime?
+  status       PolicyStatus @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+enum PolicyType {
+  LIFE_INSURANCE
+  HEALTH_INSURANCE
+  PENSION
+  PROVIDENT_FUND
+  STUDY_FUND
+  MORTGAGE_INSURANCE
+  PROPERTY_INSURANCE
+}
+
+enum PolicyStatus {
+  ACTIVE
+  PENDING
+  CANCELLED
+  EXPIRED
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  type       String
+  url        String
+  size       Int
+  uploadedAt DateTime @default(now())
+}
+
+model Message {
+  id      String        @id @default(cuid())
+  userId  String
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content String
+  sender  MessageSender
+  read    Boolean       @default(false)
+  sentAt  DateTime      @default(now())
+}
+
+enum MessageSender {
+  CLIENT
+  AGENT
+  AI
+  SYSTEM
+}
+
+model Meeting {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  type        MeetingType
+  status      MeetingStatus @default(SCHEDULED)
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum MeetingType {
+  INITIAL_CONSULTATION
+  FOLLOW_UP
+  REVIEW
+  OTHER
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model Lead {
+  id         String     @id @default(cuid())
+  name       String
+  email      String
+  phone      String
+  service    String
+  message    String?
+  source     String?    // "website", "campaign", etc
+  status     LeadStatus @default(NEW)
+  assignedTo String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String
+  author    String
+  category  String
+  tags      String[]
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
