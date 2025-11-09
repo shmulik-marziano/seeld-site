@@ -1,1 +1,305 @@
-ops/checklist.json
+{
+  "version": "1.0",
+  "categories": [
+    {
+      "name": "RTL & Internationalization",
+      "items": [
+        {
+          "id": "rtl-1",
+          "requirement": "HTML lang and dir attributes set to 'he' and 'rtl'",
+          "priority": "critical"
+        },
+        {
+          "id": "rtl-2",
+          "requirement": "All text naturally flows right-to-left",
+          "priority": "critical"
+        },
+        {
+          "id": "rtl-3",
+          "requirement": "Logical CSS properties used where appropriate (margin-inline, padding-inline)",
+          "priority": "medium"
+        },
+        {
+          "id": "rtl-4",
+          "requirement": "Hebrew content used throughout (not Lorem Ipsum)",
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "name": "Accessibility (WCAG AA)",
+      "items": [
+        {
+          "id": "a11y-1",
+          "requirement": "Semantic HTML5 landmarks (header, main, nav, section, footer)",
+          "priority": "critical"
+        },
+        {
+          "id": "a11y-2",
+          "requirement": "All interactive elements have accessible labels",
+          "priority": "critical"
+        },
+        {
+          "id": "a11y-3",
+          "requirement": "Color contrast ratio >= 4.5:1 for normal text",
+          "priority": "critical"
+        },
+        {
+          "id": "a11y-4",
+          "requirement": "Skip link present for keyboard navigation",
+          "priority": "high"
+        },
+        {
+          "id": "a11y-5",
+          "requirement": "Focus indicators visible on all interactive elements",
+          "priority": "critical"
+        },
+        {
+          "id": "a11y-6",
+          "requirement": "Form inputs have associated labels",
+          "priority": "critical"
+        },
+        {
+          "id": "a11y-7",
+          "requirement": "ARIA attributes used appropriately (aria-label, aria-expanded, etc.)",
+          "priority": "high"
+        },
+        {
+          "id": "a11y-8",
+          "requirement": "Alt text provided for images (or empty alt for decorative)",
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "name": "Required Sections & Anchors",
+      "items": [
+        {
+          "id": "nav-1",
+          "requirement": "Section with id='services' exists and is reachable",
+          "priority": "critical"
+        },
+        {
+          "id": "nav-2",
+          "requirement": "Section with id='retirement' exists and is reachable",
+          "priority": "critical"
+        },
+        {
+          "id": "nav-3",
+          "requirement": "Section with id='process' exists and is reachable",
+          "priority": "critical"
+        },
+        {
+          "id": "nav-4",
+          "requirement": "Section with id='testimonials' exists and is reachable",
+          "priority": "critical"
+        },
+        {
+          "id": "nav-5",
+          "requirement": "Section with id='contact' exists and is reachable",
+          "priority": "critical"
+        }
+      ]
+    },
+    {
+      "name": "Chips Row",
+      "items": [
+        {
+          "id": "chip-1",
+          "requirement": "Chips row container exists",
+          "priority": "critical"
+        },
+        {
+          "id": "chip-2",
+          "requirement": "Chip with data-chip='logo' exists",
+          "priority": "critical"
+        },
+        {
+          "id": "chip-3",
+          "requirement": "Chip with data-chip='contact' exists",
+          "priority": "critical"
+        },
+        {
+          "id": "chip-4",
+          "requirement": "Chip with data-chip='anim' exists",
+          "priority": "critical"
+        },
+        {
+          "id": "chip-5",
+          "requirement": "Chip with data-chip='yt' exists",
+          "priority": "critical"
+        },
+        {
+          "id": "chip-6",
+          "requirement": "Chips are keyboard accessible and have focus indicators",
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "name": "Contact Form",
+      "items": [
+        {
+          "id": "form-1",
+          "requirement": "Form has data-webhook-url attribute",
+          "priority": "critical"
+        },
+        {
+          "id": "form-2",
+          "requirement": "Form has data-sheet-id attribute",
+          "priority": "critical"
+        },
+        {
+          "id": "form-3",
+          "requirement": "Client-side validation implemented",
+          "priority": "critical"
+        },
+        {
+          "id": "form-4",
+          "requirement": "Error messages displayed for invalid inputs",
+          "priority": "high"
+        },
+        {
+          "id": "form-5",
+          "requirement": "Success message shown after submission",
+          "priority": "high"
+        },
+        {
+          "id": "form-6",
+          "requirement": "Form inputs are properly labeled and accessible",
+          "priority": "critical"
+        }
+      ]
+    },
+    {
+      "name": "Responsive Design",
+      "items": [
+        {
+          "id": "resp-1",
+          "requirement": "Viewport meta tag present",
+          "priority": "critical"
+        },
+        {
+          "id": "resp-2",
+          "requirement": "Mobile breakpoint (< 768px) implemented",
+          "priority": "critical"
+        },
+        {
+          "id": "resp-3",
+          "requirement": "Tablet breakpoint (768-1023px) considered",
+          "priority": "medium"
+        },
+        {
+          "id": "resp-4",
+          "requirement": "Desktop breakpoint (>= 1024px) implemented",
+          "priority": "high"
+        },
+        {
+          "id": "resp-5",
+          "requirement": "Content readable on 320px width screens",
+          "priority": "high"
+        },
+        {
+          "id": "resp-6",
+          "requirement": "Mobile menu toggle implemented",
+          "priority": "critical"
+        }
+      ]
+    },
+    {
+      "name": "Animations",
+      "items": [
+        {
+          "id": "anim-1",
+          "requirement": "Animations duration between 200-300ms",
+          "priority": "medium"
+        },
+        {
+          "id": "anim-2",
+          "requirement": "prefers-reduced-motion media query implemented",
+          "priority": "critical"
+        },
+        {
+          "id": "anim-3",
+          "requirement": "Hover states on interactive elements",
+          "priority": "high"
+        },
+        {
+          "id": "anim-4",
+          "requirement": "Transitions are smooth and not jarring",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "name": "Code Quality",
+      "items": [
+        {
+          "id": "code-1",
+          "requirement": "Code is self-contained (no external dependencies)",
+          "priority": "critical"
+        },
+        {
+          "id": "code-2",
+          "requirement": "No bundlers required - pure HTML/CSS/JS",
+          "priority": "critical"
+        },
+        {
+          "id": "code-3",
+          "requirement": "Comments with '// EDIT HERE' markers for client edits",
+          "priority": "high"
+        },
+        {
+          "id": "code-4",
+          "requirement": "Code is readable and well-structured",
+          "priority": "high"
+        },
+        {
+          "id": "code-5",
+          "requirement": "No console errors when page loads",
+          "priority": "critical"
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "items": [
+        {
+          "id": "perf-1",
+          "requirement": "Inline CSS and JS (no external files unless necessary)",
+          "priority": "high"
+        },
+        {
+          "id": "perf-2",
+          "requirement": "Fast initial load (minimal DOM, optimized CSS)",
+          "priority": "medium"
+        },
+        {
+          "id": "perf-3",
+          "requirement": "No render-blocking resources",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "name": "Content",
+      "items": [
+        {
+          "id": "content-1",
+          "requirement": "All sections have relevant Hebrew content",
+          "priority": "high"
+        },
+        {
+          "id": "content-2",
+          "requirement": "Meta description present and descriptive",
+          "priority": "medium"
+        },
+        {
+          "id": "content-3",
+          "requirement": "Page title is descriptive",
+          "priority": "high"
+        }
+      ]
+    }
+  ]
+}
