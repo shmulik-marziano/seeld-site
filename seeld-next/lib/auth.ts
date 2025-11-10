@@ -1,9 +1,10 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
-import type { UserRole } from "@prisma/client";
+
+// Define UserRole type (matching Prisma schema)
+type UserRole = "AGENT" | "CLIENT" | "ADMIN";
 
 declare module "next-auth" {
   interface Session {
@@ -37,7 +38,6 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days

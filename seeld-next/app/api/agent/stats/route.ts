@@ -3,6 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -174,7 +178,7 @@ export async function GET(req: NextRequest) {
       conversionRate: Math.round(conversionRate * 10) / 10,
       upcomingMeetings,
       pendingCommissions,
-      recentCommissions: recentCommissions.map((c) => ({
+      recentCommissions: recentCommissions.map((c: any) => ({
         id: c.id,
         amount: Number(c.amount),
         type: c.type,
@@ -183,7 +187,7 @@ export async function GET(req: NextRequest) {
         date: c.actualDate || c.expectedDate,
         policyProvider: c.policy.provider,
       })),
-      upcomingMeetingsList: upcomingMeetingsList.map((m) => ({
+      upcomingMeetingsList: upcomingMeetingsList.map((m: any) => ({
         id: m.id,
         title: m.title,
         clientName: m.client.user.name,

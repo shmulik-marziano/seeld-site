@@ -3,9 +3,6 @@
  * Analyzes insurance coverage adequacy based on Israeli standards
  */
 
-import type { Policy, Client } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
-
 export interface CoverageAnalysis {
   currentCoverage: {
     life: number;
@@ -41,7 +38,7 @@ export interface CoverageInsight {
  * Analyze coverage gaps for a client
  */
 export function analyzeCoverageGaps(
-  client: Client & { policies: Policy[] }
+  client: any
 ): CoverageAnalysis {
   const monthlyIncome = Number(client.monthlyIncome) || 0;
   const annualIncome = Number(client.annualIncome) || monthlyIncome * 12;
@@ -183,12 +180,12 @@ function calculateRecommendedHealthInsurance(dependents: number): number {
  * Get total coverage for a specific policy type
  */
 function getTotalCoverageByType(
-  policies: Policy[],
+  policies: any[],
   type: string
 ): number {
   return policies
-    .filter((p) => p.type === type && p.status === "ACTIVE")
-    .reduce((sum, p) => sum + Number(p.coverageAmount), 0);
+    .filter((p: any) => p.type === type && p.status === "ACTIVE")
+    .reduce((sum: number, p: any) => sum + Number(p.coverageAmount), 0);
 }
 
 /**

@@ -8,6 +8,10 @@ import {
 } from "@/lib/calculations/pension";
 import { analyzeCoverageGaps } from "@/lib/calculations/coverage";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -61,15 +65,15 @@ export async function GET(req: NextRequest) {
     // Calculate portfolio summary
     const totalPolicies = client.policies.length;
     const totalCoverage = client.policies.reduce(
-      (sum, p) => sum + Number(p.coverageAmount),
+      (sum: number, p: any) => sum + Number(p.coverageAmount),
       0
     );
     const monthlyCost = client.policies
-      .filter((p) => p.premiumFrequency === "MONTHLY")
-      .reduce((sum, p) => sum + Number(p.premium), 0);
+      .filter((p: any) => p.premiumFrequency === "MONTHLY")
+      .reduce((sum: number, p: any) => sum + Number(p.premium), 0);
 
     // Calculate pension projection if applicable
-    const pensionPolicies = client.policies.filter((p) =>
+    const pensionPolicies = client.policies.filter((p: any) =>
       ["PENSION", "PROVIDENT_FUND"].includes(p.type)
     );
 
@@ -80,8 +84,8 @@ export async function GET(req: NextRequest) {
 
       // Estimate monthly deposits from pension policies
       const monthlyDeposits = pensionPolicies
-        .filter((p) => p.premiumFrequency === "MONTHLY")
-        .reduce((sum, p) => sum + Number(p.premium), 0);
+        .filter((p: any) => p.premiumFrequency === "MONTHLY")
+        .reduce((sum: number, p: any) => sum + Number(p.premium), 0);
 
       // Assume 60/40 split between employee and employer
       const employeeDeposit = monthlyDeposits * 0.6;
@@ -103,7 +107,7 @@ export async function GET(req: NextRequest) {
     const coverageAnalysis = analyzeCoverageGaps(client);
 
     // Get policy breakdown by type
-    const policyBreakdown = client.policies.reduce((acc, policy) => {
+    const policyBreakdown = client.policies.reduce((acc: any, policy: any) => {
       const type = policy.type;
       if (!acc[type]) {
         acc[type] = {
@@ -128,7 +132,7 @@ export async function GET(req: NextRequest) {
         portfolioValue: Number(client.portfolioValue),
         adequacyScore: coverageAnalysis.adequacyScore,
       },
-      policies: client.policies.map((p) => ({
+      policies: client.policies.map((p: any) => ({
         id: p.id,
         type: p.type,
         provider: p.provider,
@@ -142,7 +146,7 @@ export async function GET(req: NextRequest) {
       policyBreakdown,
       pensionProjection,
       coverageAnalysis,
-      recommendations: client.recommendations.map((r) => ({
+      recommendations: client.recommendations.map((r: any) => ({
         id: r.id,
         type: r.type,
         title: r.title,

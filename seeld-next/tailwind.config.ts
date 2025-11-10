@@ -60,8 +60,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-assistant)', 'system-ui', 'sans-serif'],
-        body: ['var(--font-heebo)', 'system-ui', 'sans-serif'],
+        sans: ['Assistant', 'Heebo', 'system-ui', 'sans-serif'],
+        body: ['Heebo', 'Assistant', 'system-ui', 'sans-serif'],
       },
       spacing: {
         '18': '4.5rem',
