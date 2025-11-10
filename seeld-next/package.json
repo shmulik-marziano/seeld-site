@@ -2,12 +2,15 @@
   "name": "seeld-next",
   "version": "1.0.0",
   "description": "SeeLD Finance & Insurance - AI-Powered Financial Services Platform",
+  "engines": {
+    "node": ">=18.17.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
     "vercel-build": "prisma generate && next build"
   },
   "keywords": [
