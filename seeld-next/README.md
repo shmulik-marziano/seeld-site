@@ -206,22 +206,33 @@ npm run lint         # Run ESLint
 
 ### Deploy to Vercel (Recommended)
 
+**📖 למדריך מפורט בעברית, ראה:** [DEPLOYMENT_GUIDE.md](../DEPLOYMENT_GUIDE.md)
+
+#### צעדים מהירים:
+
 1. Push your code to GitHub
 2. Import project in Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy!
+3. Set **Root Directory** to: `seeld-next`
+4. Set environment variables in Vercel dashboard
+5. Deploy! 🚀
 
 Vercel will automatically detect Next.js and configure everything.
+
+#### חיבור דומיין SEELD.CO.IL:
+1. בתוך Vercel Dashboard → Settings → Domains
+2. הוסף: `seeld.co.il` ו-`www.seeld.co.il`
+3. עדכן DNS records אצל רשם הדומיינים
+4. המתן לאישור (כמה דקות עד 48 שעות)
 
 ### Environment Variables for Production
 
 Make sure to set these in Vercel:
-- `DATABASE_URL`
-- `NEXTAUTH_SECRET`
-- `NEXTAUTH_URL`
-- `ANTHROPIC_API_KEY`
-- `RESEND_API_KEY`
-- `NEXT_PUBLIC_GA_ID` (Google Analytics)
+- `DATABASE_URL` - PostgreSQL connection string
+- `NEXTAUTH_SECRET` - Generate with: `openssl rand -base64 32`
+- `NEXTAUTH_URL` - Your domain: `https://seeld.co.il`
+- `ANTHROPIC_API_KEY` (optional - for AI features)
+- `RESEND_API_KEY` (optional - for email)
+- `NEXT_PUBLIC_GA_ID` (optional - Google Analytics)
 
 ## 📝 Database Schema
 
