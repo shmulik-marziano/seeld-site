@@ -1,18 +1,5 @@
 import type { Metadata } from 'next'
-import { Assistant, Heebo } from 'next/font/google'
 import './globals.css'
-
-const assistant = Assistant({
-  subsets: ['hebrew', 'latin'],
-  variable: '--font-assistant',
-  display: 'swap',
-})
-
-const heebo = Heebo({
-  subsets: ['hebrew', 'latin'],
-  variable: '--font-heebo',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: {
@@ -85,8 +72,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${assistant.variable} ${heebo.variable}`}>
-      <body className="font-body antialiased">
+    <html lang="he" dir="rtl">
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>

@@ -11,26 +11,136 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  phone     String?
-  role      Role     @default(CLIENT)
-  password  String   // hashed with bcrypt
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String     @id @default(cuid())
+  email       String     @unique
+  password    String     // hashed with bcrypt
+  name        String
+  phone       String?
+  role        UserRole   @default(CLIENT)
+  status      UserStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  lastLoginAt DateTime?
 
   // Relations
-  portfolio Portfolio?
-  documents Document[]
-  messages  Message[]
-  meetings  Meeting[]
+  agentProfile  Agent?
+  clientProfile Client?
+  portfolio     Portfolio?
+  documents     Document[]
+  messages      Message[]
+  meetings      Meeting[]
 }
 
-enum Role {
-  CLIENT
+enum UserRole {
   AGENT
+  CLIENT
   ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  INACTIVE
+}
+
+// ============================================
+// AGENT MODEL
+// ============================================
+
+model Agent {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Professional Info
+  licenseNumber   String   @unique
+  licenseType     String[] // ["life", "health", "pension", etc]
+  yearsExperience Int?
+  specialization  String[] // areas of expertise
+
+  // Business Info
+  agencyName      String?
+  website         String?
+  bio             String?  @db.Text
+
+  // Stats (calculated)
+  totalClients    Int      @default(0)
+  activeClients   Int      @default(0)
+  totalRevenue    Decimal  @default(0) @db.Decimal(12,2)
+
+  // Relations
+  clients         Client[]
+  commissions     Commission[]
+  meetings        Meeting[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ============================================
+// CLIENT MODEL
+// ============================================
+
+model Client {
+  id                String            @id @default(cuid())
+  userId            String            @unique
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Assigned Agent
+  agentId           String
+  agent             Agent             @relation(fields: [agentId], references: [id])
+
+  // Personal Info
+  dateOfBirth       DateTime?
+  idNumber          String?           @unique // Israeli ID
+  maritalStatus     MaritalStatus?
+  dependents        Int?              // number of children/dependents
+  occupation        String?
+  employmentStatus  EmploymentStatus?
+
+  // Financial Info
+  monthlyIncome     Decimal?          @db.Decimal(10,2)
+  annualIncome      Decimal?          @db.Decimal(10,2)
+
+  // Address
+  address           String?
+  city              String?
+  postalCode        String?
+
+  // Preferences
+  preferredContact  String[]          // ["email", "phone", "whatsapp"]
+  language          String            @default("he") // "he" or "en"
+
+  // Stats
+  totalPolicies     Int               @default(0)
+  totalCoverage     Decimal           @default(0) @db.Decimal(12,2)
+  portfolioValue    Decimal           @default(0) @db.Decimal(12,2)
+
+  // Relations
+  policies          Policy[]
+  documents         Document[]
+  messages          Message[]
+  meetings          Meeting[]
+  recommendations   Recommendation[]
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum EmploymentStatus {
+  EMPLOYED
+  SELF_EMPLOYED
+  UNEMPLOYED
+  RETIRED
+  STUDENT
 }
 
 model Portfolio {
@@ -43,93 +153,308 @@ model Portfolio {
 }
 
 model Policy {
-  id           String       @id @default(cuid())
-  portfolioId  String
-  portfolio    Portfolio    @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
-  type         PolicyType
-  provider     String
-  policyNumber String
-  coverage     Float
-  premium      Float
-  startDate    DateTime
-  endDate      DateTime?
-  status       PolicyStatus @default(ACTIVE)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String           @id @default(cuid())
+  clientId        String
+  client          Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  portfolioId     String?
+  portfolio       Portfolio?       @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  // Policy Details
+  policyNumber    String           @unique
+  type            PolicyType
+  provider        String           // Insurance company name
+  providerId      String?          // If we have InsuranceCompany model
+
+  // Coverage
+  coverageAmount  Decimal          @db.Decimal(12,2)
+  premium         Decimal          @db.Decimal(10,2)
+  premiumFrequency PremiumFrequency @default(MONTHLY)
+
+  // Dates
+  startDate       DateTime
+  endDate         DateTime?
+  renewalDate     DateTime?
+
+  // Status
+  status          PolicyStatus     @default(ACTIVE)
+
+  // Additional Info
+  beneficiaries   String?          @db.Text // JSON or plain text
+  notes           String?          @db.Text
+
+  // Relations
+  commissions     Commission[]
+  documents       Document[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 enum PolicyType {
   LIFE_INSURANCE
   HEALTH_INSURANCE
+  DISABILITY_INSURANCE
   PENSION
   PROVIDENT_FUND
   STUDY_FUND
   MORTGAGE_INSURANCE
   PROPERTY_INSURANCE
+  VEHICLE_INSURANCE
+  OTHER
+}
+
+enum PremiumFrequency {
+  MONTHLY
+  QUARTERLY
+  SEMI_ANNUAL
+  ANNUAL
+  ONE_TIME
 }
 
 enum PolicyStatus {
   ACTIVE
   PENDING
+  LAPSED
   CANCELLED
-  EXPIRED
+  MATURED
 }
+
+// ============================================
+// COMMISSION MODEL
+// ============================================
+
+model Commission {
+  id              String           @id @default(cuid())
+
+  // Relations
+  agentId         String
+  agent           Agent            @relation(fields: [agentId], references: [id])
+  policyId        String
+  policy          Policy           @relation(fields: [policyId], references: [id])
+
+  // Commission Details
+  type            CommissionType
+  amount          Decimal          @db.Decimal(10,2)
+  currency        String           @default("ILS")
+
+  // Expected vs Actual
+  expectedAmount  Decimal?         @db.Decimal(10,2)
+  expectedDate    DateTime?
+  actualDate      DateTime?
+
+  // Status
+  status          CommissionStatus @default(PENDING)
+
+  // Payment Info
+  paymentMethod   String?          // "bank_transfer", "check", etc
+  transactionRef  String?          // Reference from bank
+
+  // Variance (for tracking)
+  variance        Decimal?         @db.Decimal(10,2) // amount - expectedAmount
+  variancePercent Decimal?         @db.Decimal(5,2)
+
+  notes           String?          @db.Text
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum CommissionType {
+  INITIAL        // First commission on new policy
+  RENEWAL        // Recurring commission
+  BONUS          // Special bonus
+  OVERRIDE       // Manager override
+  OTHER
+}
+
+enum CommissionStatus {
+  PENDING        // Expected but not received
+  RECEIVED       // Paid
+  OVERDUE        // Past expected date
+  DISPUTED       // Amount mismatch
+  CANCELLED      // Not coming
+}
+
+// ============================================
+// DOCUMENT MODEL
+// ============================================
 
 model Document {
-  id         String   @id @default(cuid())
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name       String
-  type       String
-  url        String
-  size       Int
-  uploadedAt DateTime @default(now())
+  id              String       @id @default(cuid())
+
+  // Owner
+  clientId        String?
+  client          Client?      @relation(fields: [clientId], references: [id])
+  policyId        String?
+  policy          Policy?      @relation(fields: [policyId], references: [id])
+  userId          String?
+  user            User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // File Info
+  name            String
+  type            DocumentType
+  category        String?      // "ID", "Policy", "Claim", etc
+  fileUrl         String       // S3/R2 URL
+  fileSize        Int          // bytes
+  mimeType        String
+
+  // Metadata
+  uploadedBy      String       // userId
+  description     String?      @db.Text
+
+  // Security
+  isConfidential  Boolean      @default(false)
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
+
+enum DocumentType {
+  ID_CARD
+  POLICY_DOCUMENT
+  CLAIM_FORM
+  MEDICAL_REPORT
+  FINANCIAL_STATEMENT
+  CONTRACT
+  OTHER
+}
+
+// ============================================
+// MESSAGE MODEL
+// ============================================
 
 model Message {
-  id      String        @id @default(cuid())
-  userId  String
-  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  content String
-  sender  MessageSender
-  read    Boolean       @default(false)
-  sentAt  DateTime      @default(now())
+  id              String   @id @default(cuid())
+
+  // Participants
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id])
+  senderId        String   // userId (could be client or agent)
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Content
+  subject         String?
+  content         String   @db.Text
+
+  // Status
+  isRead          Boolean  @default(false)
+  readAt          DateTime?
+
+  // Metadata
+  sentAt          DateTime @default(now())
+
+  createdAt       DateTime @default(now())
 }
 
-enum MessageSender {
-  CLIENT
-  AGENT
-  AI
-  SYSTEM
-}
+// ============================================
+// MEETING MODEL
+// ============================================
 
 model Meeting {
-  id          String        @id @default(cuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  startTime   DateTime
-  endTime     DateTime
-  type        MeetingType
-  status      MeetingStatus @default(SCHEDULED)
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              String        @id @default(cuid())
+
+  // Participants
+  agentId         String
+  agent           Agent         @relation(fields: [agentId], references: [id])
+  clientId        String
+  client          Client        @relation(fields: [clientId], references: [id])
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Meeting Details
+  title           String
+  description     String?       @db.Text
+  type            MeetingType
+
+  // Scheduling
+  scheduledAt     DateTime
+  duration        Int           // minutes
+  location        String?       // "Office", "Zoom", "Phone", etc
+  meetingLink     String?       // Zoom/Meet link
+
+  // Status
+  status          MeetingStatus @default(SCHEDULED)
+
+  // Notes
+  agentNotes      String?       @db.Text
+  outcome         String?       @db.Text
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 enum MeetingType {
   INITIAL_CONSULTATION
   FOLLOW_UP
-  REVIEW
+  ANNUAL_REVIEW
+  CLAIM_ASSISTANCE
+  POLICY_UPDATE
   OTHER
 }
 
 enum MeetingStatus {
   SCHEDULED
+  CONFIRMED
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+// ============================================
+// RECOMMENDATION MODEL (AI Generated)
+// ============================================
+
+model Recommendation {
+  id              String               @id @default(cuid())
+  clientId        String
+  client          Client               @relation(fields: [clientId], references: [id])
+
+  // Recommendation Details
+  type            RecommendationType
+  title           String
+  description     String               @db.Text
+  priority        Priority             @default(MEDIUM)
+
+  // Financial Impact
+  potentialSavings Decimal?            @db.Decimal(10,2)
+  estimatedCost    Decimal?            @db.Decimal(10,2)
+
+  // Status
+  status          RecommendationStatus @default(PENDING)
+  reviewedAt      DateTime?
+  implementedAt   DateTime?
+
+  // AI Info
+  confidence      Decimal?             @db.Decimal(3,2) // 0.00 - 1.00
+  reasoning       String?              @db.Text
+
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+}
+
+enum RecommendationType {
+  COVERAGE_GAP
+  COST_OPTIMIZATION
+  POLICY_CONSOLIDATION
+  PENSION_IMPROVEMENT
+  NEW_PRODUCT
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum RecommendationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+  IMPLEMENTED
 }
 
 model Lead {
