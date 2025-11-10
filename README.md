@@ -1,52 +1,99 @@
-# SeeLD Website
+# SeeLD Finance & Insurance - Website
 
-פלטפורמת פיננסים וביטוח מבוססת AI של SeeLD.
+**AI Powered By UMN**
 
-## 📁 מבנה הפרויקט
-
-```
-seeld-site/
-├── seeld-next/          # ← אפליקציית Next.js הראשית (כאן הקוד!)
-│   ├── app/            # Next.js App Router
-│   ├── components/     # React Components
-│   ├── prisma/         # Database Schema
-│   └── package.json    # Dependencies
-├── ops/                # DevOps & Infrastructure
-├── specs/              # Specifications
-└── vercel.json         # Vercel Configuration (root)
-```
+A modern, AI-powered financial services and insurance platform built with Next.js 16, TypeScript, and Tailwind CSS.
 
 ## 🚀 Quick Start
 
-**הקוד נמצא בתיקייה `seeld-next/`!**
+### Development
 
 ```bash
-cd seeld-next
+# Install dependencies
 npm install
+
+# Run development server
 npm run dev
 ```
 
-## 📖 Documentation
+Open [http://localhost:3000](http://localhost:3000)
 
-- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - מדריך העלאה מפורט
-- **[Vercel Quick Start](VERCEL_QUICK_START.md)** - מדריך מהיר ל-Vercel
-- **[Alternative Deployments](ALTERNATIVE_DEPLOYMENT.md)** - אפשרויות נוספות
-- **[Technical README](seeld-next/README.md)** - תיעוד טכני מלא
+### Production Build
 
-## ⚙️ Deployment to Vercel
-
-### Important: Root Directory Setting
-
-When deploying to Vercel, you **MUST** set:
-
-```
-Root Directory: seeld-next
+```bash
+npm run build
+npm start
 ```
 
-### או השתמש ב-vercel.json (automatic)
+## 📖 Deployment Guides
 
-The `vercel.json` in the root automatically configures the correct paths.
+- **[Vercel Quick Start](VERCEL_QUICK_START.md)** - מדריך מהיר ל-Vercel בעברית
+- **[Full Deployment Guide](DEPLOYMENT_GUIDE.md)** - מדריך מפורט
+- **[Alternative Options](ALTERNATIVE_DEPLOYMENT.md)** - חלופות deployment
+
+## 📦 Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript 5.9
+- **Styling:** Tailwind CSS v4
+- **UI Components:** Shadcn/ui
+- **Database:** Prisma ORM + PostgreSQL
+- **Authentication:** NextAuth.js
+- **Icons:** Lucide React
+
+## 🌐 Deploy to Vercel
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shmulik-marziano/seeld-site)
+
+### Environment Variables
+
+```env
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=your-secret-here
+DATABASE_URL=postgresql://...
+```
+
+Generate secret: `openssl rand -base64 32`
+
+## 📁 Project Structure
+
+```
+seeld-site/
+├── app/              # Next.js App Router
+├── components/       # React Components
+├── lib/             # Utilities & Helpers
+├── prisma/          # Database Schema
+├── public/          # Static Assets
+└── types/           # TypeScript Types
+```
+
+## 🔧 Scripts
+
+- `npm run dev` - Development server
+- `npm run build` - Production build
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+
+## 🎨 Features
+
+- ✅ RTL (Right-to-Left) Hebrew support
+- ✅ Responsive design (mobile-first)
+- ✅ SEO optimized
+- ✅ Type-safe with TypeScript
+- ✅ Modern UI with Tailwind CSS v4
+- ✅ Database with Prisma ORM
+- ✅ Authentication ready
+
+## 🤝 Contributing
+
+This is a private project for SeeLD Finance & Insurance.
+
+## 📄 License
+
+ISC © 2024 Shmulik Marziano - SeeLD Finance & Insurance
 
 ---
 
-**© 2024 SeeLD. All rights reserved.**
+**Built with ❤️ using Next.js, TypeScript, and AI**
+
+*העתיד של הייעוץ הפיננסי כבר כאן*
