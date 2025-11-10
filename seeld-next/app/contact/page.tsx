@@ -2,10 +2,8 @@ import { Metadata } from 'next'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
+import { ContactForm } from '@/components/forms/ContactForm'
 import {
   MapPin,
   Phone,
@@ -13,7 +11,6 @@ import {
   Clock,
   MessageSquare,
   Calendar,
-  Send,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -124,80 +121,7 @@ export default function ContactPage() {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
-                    {/* Name */}
-                    <div>
-                      <Label htmlFor="name">שם מלא *</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        placeholder="שם מלא"
-                        required
-                      />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <Label htmlFor="email">מייל *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="email@example.com"
-                        required
-                      />
-                    </div>
-
-                    {/* Phone */}
-                    <div>
-                      <Label htmlFor="phone">טלפון *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        placeholder="050-123-4567"
-                        required
-                      />
-                    </div>
-
-                    {/* Service */}
-                    <div>
-                      <Label htmlFor="service">איזה שירות מעניין אותך?</Label>
-                      <select
-                        id="service"
-                        className="flex h-11 w-full rounded-lg border-2 border-neutral-300 bg-white px-4 py-3 text-base"
-                      >
-                        <option value="">בחר שירות</option>
-                        <option value="pension">ייעוץ פנסיוני</option>
-                        <option value="financial">תכנון פיננסי</option>
-                        <option value="retirement">תכנון פרישה</option>
-                        <option value="insurance">ביטוחים</option>
-                        <option value="mortgage">משכנתאות</option>
-                        <option value="household">ניהול משק בית</option>
-                        <option value="agent">הצטרפות כסוכן</option>
-                        <option value="seeld-ai">מערכת SeelD AI</option>
-                        <option value="other">אחר</option>
-                      </select>
-                    </div>
-
-                    {/* Message */}
-                    <div>
-                      <Label htmlFor="message">הודעה</Label>
-                      <Textarea
-                        id="message"
-                        placeholder="ספרו לנו קצת על מה שאתם מחפשים..."
-                        rows={4}
-                      />
-                    </div>
-
-                    {/* Submit */}
-                    <Button type="submit" className="w-full" size="lg">
-                      שלח הודעה
-                      <Send className="mr-2 h-4 w-4" />
-                    </Button>
-
-                    <p className="text-xs text-neutral-500 text-center">
-                      * שדות חובה. אנחנו לא שולחים ספאם ושומרים על הפרטיות שלכם.
-                    </p>
-                  </form>
+                  <ContactForm />
                 </CardContent>
               </Card>
 
