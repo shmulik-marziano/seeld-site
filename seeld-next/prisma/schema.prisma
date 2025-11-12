@@ -29,6 +29,10 @@ model User {
   documents     Document[]
   messages      Message[]
   meetings      Meeting[]
+  activities    Activity[]
+  aiInteractions AIInteraction[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
 }
 
 enum UserRole {
@@ -123,6 +127,9 @@ model Client {
   messages          Message[]
   meetings          Meeting[]
   recommendations   Recommendation[]
+  tasks             Task[]
+  activities        Activity[]
+  aiInteractions    AIInteraction[]
 
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
@@ -466,7 +473,30 @@ model Lead {
   message    String?
   source     String?    // "website", "campaign", etc
   status     LeadStatus @default(NEW)
+
+  // Assignment
   assignedTo String?
+  assignedBy String?    // userId who assigned
+  assignedAt DateTime?
+
+  // Lead Scoring (AI)
+  score      Int?       @default(0) // 0-100
+  scoreReason String?   @db.Text
+
+  // Contact preferences
+  preferredContactTime String? // "morning", "afternoon", "evening"
+  preferredContactMethod String? // "phone", "email", "whatsapp"
+
+  // Tracking
+  lastContactedAt DateTime?
+  nextFollowUpAt  DateTime?
+
+  // Relations
+  tasks      Task[]
+  activities Activity[]
+  campaign   Campaign?  @relation(fields: [campaignId], references: [id])
+  campaignId String?
+
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 }
@@ -477,6 +507,7 @@ enum LeadStatus {
   QUALIFIED
   CONVERTED
   LOST
+  NURTURING
 }
 
 model BlogPost {
@@ -491,4 +522,397 @@ model BlogPost {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ============================================
+// TASK MODEL (משימות)
+// ============================================
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?    @db.Text
+  type        TaskType
+  status      TaskStatus @default(PENDING)
+  priority    Priority   @default(MEDIUM)
+
+  // Assignment
+  assignedTo  String     // userId
+  assignedBy  String?    // userId
+
+  // Relations
+  leadId      String?
+  lead        Lead?      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  clientId    String?
+  client      Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Scheduling
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  // AI Generated
+  isAIGenerated Boolean  @default(false)
+  aiReasoning   String?  @db.Text
+
+  // Notes
+  notes       String?    @db.Text
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+enum TaskType {
+  CALL
+  EMAIL
+  MEETING
+  FOLLOW_UP
+  DOCUMENT_REQUEST
+  POLICY_REVIEW
+  CLAIM_ASSISTANCE
+  SEND_PROPOSAL
+  CONTRACT_SIGNING
+  OTHER
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+// ============================================
+// ACTIVITY MODEL (פעילויות)
+// ============================================
+
+model Activity {
+  id          String       @id @default(cuid())
+  type        ActivityType
+  description String       @db.Text
+
+  // Relations
+  userId      String       // Who performed the activity
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  leadId      String?
+  lead        Lead?        @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  clientId    String?
+  client      Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Call tracking
+  callDuration Int?       // seconds
+  callOutcome  CallOutcome?
+  callNotes    String?    @db.Text
+  callRecordingUrl String?
+
+  // Email tracking
+  emailSubject String?
+  emailSent    Boolean?   @default(false)
+  emailOpened  Boolean?   @default(false)
+  emailClicked Boolean?   @default(false)
+
+  // SMS tracking
+  smsDelivered Boolean?   @default(false)
+  smsContent   String?    @db.Text
+
+  // Metadata
+  metadata     String?    @db.Text // JSON for additional data
+
+  createdAt    DateTime   @default(now())
+}
+
+enum ActivityType {
+  CALL_INBOUND
+  CALL_OUTBOUND
+  EMAIL_SENT
+  EMAIL_RECEIVED
+  SMS_SENT
+  WHATSAPP_SENT
+  MEETING_SCHEDULED
+  MEETING_COMPLETED
+  NOTE_ADDED
+  DOCUMENT_UPLOADED
+  POLICY_CREATED
+  POLICY_UPDATED
+  LEAD_CREATED
+  LEAD_CONVERTED
+  TASK_COMPLETED
+}
+
+enum CallOutcome {
+  ANSWERED
+  NO_ANSWER
+  VOICEMAIL
+  BUSY
+  WRONG_NUMBER
+  CALLBACK_REQUESTED
+  INTERESTED
+  NOT_INTERESTED
+}
+
+// ============================================
+// CAMPAIGN MODEL (קמפיינים)
+// ============================================
+
+model Campaign {
+  id          String         @id @default(cuid())
+  name        String
+  description String?        @db.Text
+  type        CampaignType
+  status      CampaignStatus @default(DRAFT)
+
+  // Content
+  subject     String?
+  content     String         @db.Text
+
+  // Targeting
+  targetAudience String?     @db.Text // JSON filters
+
+  // Scheduling
+  scheduledAt DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Stats
+  totalRecipients Int        @default(0)
+  sent            Int        @default(0)
+  delivered       Int        @default(0)
+  opened          Int        @default(0)
+  clicked         Int        @default(0)
+  converted       Int        @default(0)
+  bounced         Int        @default(0)
+  unsubscribed    Int        @default(0)
+
+  // Budget & ROI
+  budget          Decimal?   @db.Decimal(10,2)
+  cost            Decimal?   @db.Decimal(10,2)
+  revenue         Decimal?   @db.Decimal(10,2)
+
+  // Relations
+  leads       Lead[]
+
+  createdBy   String         // userId
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+enum CampaignType {
+  EMAIL
+  SMS
+  WHATSAPP
+  VOICE
+  MIXED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// AI INTERACTION MODEL (אינטראקציות AI)
+// ============================================
+
+model AIInteraction {
+  id          String             @id @default(cuid())
+  type        AIInteractionType
+
+  // User context
+  userId      String?
+  user        User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId    String?
+  client      Client?            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // Interaction data
+  input       String             @db.Text
+  output      String             @db.Text
+  model       String             // "claude-3-sonnet", "gpt-4", etc
+
+  // Quality
+  confidence  Decimal?           @db.Decimal(3,2) // 0.00 - 1.00
+  wasHelpful  Boolean?
+  feedback    String?            @db.Text
+
+  // Results
+  actionTaken String?            @db.Text
+
+  // Performance
+  tokensUsed  Int?
+  latencyMs   Int?               // milliseconds
+
+  createdAt   DateTime           @default(now())
+}
+
+enum AIInteractionType {
+  CHATBOT_CONVERSATION
+  POLICY_ANALYSIS
+  LEAD_SCORING
+  RECOMMENDATION
+  MEETING_SUMMARY
+  EMAIL_DRAFT
+  DOCUMENT_EXTRACTION
+  PREDICTION
+  QUERY_ASSISTANCE
+}
+
+// ============================================
+// INTEGRATION MODEL (אינטגרציות)
+// ============================================
+
+model Integration {
+  id          String              @id @default(cuid())
+  name        String              // "Pension Clearing House", "Insurance Co", etc
+  type        IntegrationType
+  status      IntegrationStatus   @default(ACTIVE)
+
+  // Credentials (should be encrypted in production)
+  apiKey      String?
+  apiSecret   String?
+  webhookUrl  String?
+  config      String?             @db.Text // JSON config
+
+  // Stats
+  lastSyncAt  DateTime?
+  lastSyncStatus String?          // "success", "error"
+  syncFrequency String?           // "daily", "hourly", "realtime"
+  totalSyncs  Int                 @default(0)
+  failedSyncs Int                 @default(0)
+  lastError   String?             @db.Text
+
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+enum IntegrationType {
+  INSURANCE_COMPANY
+  PENSION_CLEARING
+  HAR_HABITUCH
+  BANK
+  SMS_PROVIDER
+  EMAIL_PROVIDER
+  VOIP_PROVIDER
+  CALENDAR
+  STORAGE
+  PAYMENT_GATEWAY
+  ACCOUNTING
+  CRM_EXTERNAL
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  PENDING_SETUP
+  TESTING
+}
+
+// ============================================
+// NOTIFICATION MODEL (התראות)
+// ============================================
+
+model Notification {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Content
+  title       String
+  message     String             @db.Text
+  type        NotificationType
+  priority    Priority           @default(MEDIUM)
+
+  // Action
+  actionUrl   String?
+  actionLabel String?
+
+  // Status
+  isRead      Boolean            @default(false)
+  readAt      DateTime?
+
+  // Metadata
+  metadata    String?            @db.Text // JSON
+
+  createdAt   DateTime           @default(now())
+}
+
+enum NotificationType {
+  TASK_DUE
+  TASK_OVERDUE
+  MEETING_REMINDER
+  POLICY_RENEWAL
+  COMMISSION_RECEIVED
+  LEAD_ASSIGNED
+  MESSAGE_RECEIVED
+  DOCUMENT_UPLOADED
+  AI_RECOMMENDATION
+  SYSTEM_ALERT
+}
+
+// ============================================
+// TEMPLATE MODEL (תבניות)
+// ============================================
+
+model Template {
+  id          String         @id @default(cuid())
+  name        String
+  description String?        @db.Text
+  type        TemplateType
+  category    String?
+
+  // Content
+  subject     String?        // For email/SMS
+  content     String         @db.Text
+  variables   String[]       // Placeholders like {{name}}, {{date}}
+
+  // Usage
+  isActive    Boolean        @default(true)
+  usageCount  Int            @default(0)
+
+  // Ownership
+  isPublic    Boolean        @default(false) // Public = available to all
+  createdBy   String         // userId
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+enum TemplateType {
+  EMAIL
+  SMS
+  WHATSAPP
+  DOCUMENT
+  TASK
+  NOTE
+}
+
+// ============================================
+// AUDIT LOG MODEL (לוג ביקורת)
+// ============================================
+
+model AuditLog {
+  id          String    @id @default(cuid())
+
+  // Who
+  userId      String?   // null for system actions
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userEmail   String?   // Store email in case user deleted
+
+  // What
+  action      String    // "create", "update", "delete", "login", etc
+  resource    String    // "user", "client", "policy", etc
+  resourceId  String?
+
+  // Details
+  changes     String?   @db.Text // JSON of what changed
+  metadata    String?   @db.Text // Additional context
+
+  // When & Where
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime  @default(now())
 }
